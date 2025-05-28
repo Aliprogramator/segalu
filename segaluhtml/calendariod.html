@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SEGALU - Calendario</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background: #121212;
+      color: #f5f5f5;
+      display: flex;
+      min-height: 100vh;
+    }
+    nav.sidebar {
+      background: #1f1f1f;
+      width: 260px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    nav.sidebar h2 {
+      color: #ff6600;
+      font-weight: 700;
+      font-size: 1.6rem;
+    }
+    nav.sidebar a {
+      color: #ccc;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 10px 15px;
+      border-radius: 5px;
+      transition: background 0.3s;
+      display: block;
+    }
+    nav.sidebar a:hover, nav.sidebar a.active {
+      background: #ff6600;
+      color: #121212;
+    }
+    nav.sidebar a.logout {
+      margin-top: auto;
+      background: #b33600;
+      color: white;
+      font-weight: 700;
+      text-align: center;
+    }
+    nav.sidebar a.logout:hover {
+      background: #ff3300;
+    }
+
+    main.content {
+      margin-left: 260px;
+      padding: 40px;
+      flex: 1;
+      background: #181818;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #ff6600;
+      margin-bottom: 30px;
+    }
+
+    .calendar-box {
+      background: #292929;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(255,102,0,0.5);
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .event {
+      background: #1f1f1f;
+      padding: 15px;
+      margin: 10px 0;
+      border-left: 6px solid #ff6600;
+      border-radius: 8px;
+    }
+
+    .event h3 {
+      margin-bottom: 5px;
+      color: #ff9900;
+    }
+
+    .event p {
+      color: #ccc;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <h2>SEGALU</h2>
+    <a href="dashboard.html">Inicio</a>
+    <a href="#">Gestión de Reservas</a>
+    <a href="#">Gestión de Pagos</a>
+    <a href="subir_pago.html">Subir Comprobante</a>
+    <a href="calendario.html" class="active">Calendario</a>
+    <a href="#">Perfil</a>
+    <a href="#" class="logout">Cerrar sesión</a>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="content">
+    <h1>Calendario de Eventos</h1>
+    <div class="calendar-box">
+      <div class="event">
+        <h3>15 de Junio</h3>
+        <p>Quinceañera - Salón Imperial</p>
+      </div>
+      <div class="event">
+        <h3>22 de Junio</h3>
+        <p>Boda - Jardines del Sol</p>
+      </div>
+      <div class="event">
+        <h3>5 de Julio</h3>
+        <p>Graduación - Centro de Convenciones Norte</p>
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>

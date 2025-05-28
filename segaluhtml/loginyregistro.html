@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login y Registro - SEGALU</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0d0d0d, #ff6600);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      background-color: #1a1a1a;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(255, 102, 0, 0.4);
+      width: 100%;
+      max-width: 400px;
+    }
+    .form-toggle {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 1rem;
+    }
+    .form-toggle button {
+      background: none;
+      border: none;
+      color: #ff6600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .form-toggle button.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    form {
+      display: none;
+      flex-direction: column;
+    }
+    form.active {
+      display: flex;
+    }
+    input {
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      border: none;
+      border-radius: 8px;
+      background-color: #333;
+      color: #fff;
+    }
+    button.submit {
+      background-color: #ff6600;
+      color: #fff;
+      border: none;
+      padding: 0.8rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .message {
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      text-align: center;
+      color: #ff6600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="form-toggle">
+      <button id="loginBtn" class="active">Iniciar Sesión</button>
+      <button id="registerBtn">Registrarse</button>
+    </div>
+
+    <form id="loginForm" class="active">
+      <input type="email" id="loginEmail" placeholder="Correo electrónico" required />
+      <input type="password" id="loginPassword" placeholder="Contraseña" required />
+      <button type="submit" class="submit">Ingresar</button>
+      <div class="message" id="loginMessage"></div>
+    </form>
+
+    <form id="registerForm">
+      <input type="text" placeholder="Nombre completo" required />
+      <input type="email" placeholder="Correo electrónico" required />
+      <input type="password" placeholder="Contraseña" required />
+      <input type="password" placeholder="Confirmar contraseña" required />
+      <button type="submit" class="submit">Registrarse</button>
+      <div class="message" id="registerMessage"></div>
+    </form>
+  </div>
+
+  <script>
+    const loginBtn = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const loginMessage = document.getElementById('loginMessage');
+
+    loginBtn.addEventListener('click', () => {
+      loginForm.classList.add('active');
+      registerForm.classList.remove('active');
+      loginBtn.classList.add('active');
+      registerBtn.classList.remove('active');
+    });
+
+    registerBtn.addEventListener('click', () => {
+      registerForm.classList.add('active');
+      loginForm.classList.remove('active');
+      registerBtn.classList.add('active');
+      loginBtn.classList.remove('active');
+    });
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const pass = document.getElementById('loginPassword').value;
+
+      if (email === 'aligericoronado80@gmail.com' && pass === '12345678') {
+        loginMessage.textContent = 'Ingreso exitoso. Redirigiendo...';
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1000);
+      } else {
+        loginMessage.textContent = 'Correo o contraseña incorrectos';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SEGALU - Gestión de Pagos</title>
+  <style>
+    :root {
+      --color-bg-dark: #121212;
+      --color-bg-sidebar: #1f1f1f;
+      --color-bg-content: #181818;
+      --color-primary: #ff6600;
+      --color-primary-light: #ff9900;
+      --color-text-light: #f5f5f5;
+      --color-text-muted: #ccc;
+      --color-success: #28a745;
+      --color-warning: #ffc107;
+      --color-error: #b33600;
+      --color-error-hover: #ff3300;
+      --shadow-primary: 0 0 8px rgba(255, 102, 0, 0.4);
+      --shadow-hover: 0 0 15px rgba(255, 153, 0, 0.7);
+      --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    /* Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-family);
+    }
+    body {
+      background: var(--color-bg-dark);
+      color: var(--color-text-light);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+      user-select: none;
+    }
+    /* Sidebar */
+    nav.sidebar {
+      background: var(--color-bg-sidebar);
+      width: 260px;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: fixed;
+      box-shadow: inset -3px 0 8px rgba(255, 102, 0, 0.3);
+      transition: width 0.3s ease;
+      z-index: 100;
+    }
+    nav.sidebar h2 {
+      color: var(--color-primary);
+      font-weight: 700;
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+      user-select: none;
+    }
+    nav.sidebar a {
+      color: var(--color-text-muted);
+      text-decoration: none;
+      font-weight: 600;
+      padding: 12px 18px;
+      border-radius: 6px;
+      transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    nav.sidebar a:hover, nav.sidebar a.active {
+      background: var(--color-primary);
+      color: var(--color-bg-dark);
+      box-shadow: var(--shadow-hover);
+    }
+    nav.sidebar a.logout {
+      margin-top: auto;
+      background: var(--color-error);
+      color: white;
+      font-weight: 700;
+      text-align: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+    }
+    nav.sidebar a.logout:hover {
+      background: var(--color-error-hover);
+      box-shadow: 0 0 12px var(--color-error-hover);
+    }
+    nav.sidebar a svg {
+      fill: currentColor;
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+    /* Main Content */
+    main.content {
+      margin-left: 260px;
+      padding: 30px;
+      flex: 1;
+      background: var(--color-bg-content);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.3s ease;
+      width: calc(100% - 260px);
+    }
+    main.content .content-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    main.content h1 {
+      color: var(--color-primary);
+      font-weight: 700;
+      font-size: 2.4rem;
+      user-select: text;
+      margin-bottom: 15px;
+    }
+    main.content p {
+      color: var(--color-text-muted);
+      font-size: 1rem;
+      margin-bottom: 30px;
+      user-select: text;
+    }
+    /* Filtros */
+    .filters {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+    .filters button {
+      background: transparent;
+      border: 2px solid var(--color-primary);
+      color: var(--color-primary);
+      padding: 8px 18px;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease, color 0.3s ease;
+      user-select: none;
+    }
+    .filters button.active,
+    .filters button:hover {
+      background: var(--color-primary);
+      color: var(--color-bg-dark);
+      box-shadow: var(--shadow-hover);
+    }
+    /* Tabla pagos */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #292929;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-primary);
+    }
+    thead tr {
+      background: var(--color-primary);
+      color: var(--color-bg-dark);
+      text-align: left;
+    }
+    thead th {
+      padding: 14px 20px;
+      font-weight: 700;
+      user-select: none;
+    }
+    tbody tr {
+      border-bottom: 1px solid #444;
+      transition: background 0.25s ease;
+      cursor: default;
+    }
+    tbody tr:hover {
+      background: rgba(255, 102, 0, 0.15);
+    }
+    tbody td {
+      padding: 14px 20px;
+      vertical-align: middle;
+      color: var(--color-text-light);
+      font-size: 1rem;
+    }
+    tbody td.status {
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    tbody td.status.pending {
+      color: var(--color-warning);
+    }
+    tbody td.status.completed {
+      color: var(--color-success);
+    }
+    tbody td.status.failed {
+      color: var(--color-error);
+    }
+    /* Botones de acción */
+    .btn-action {
+      background: var(--color-primary);
+      border: none;
+      color: var(--color-bg-dark);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+    }
+    .btn-action:hover {
+      background: var(--color-primary-light);
+      box-shadow: var(--shadow-hover);
+    }
+    .btn-action:disabled {
+      background: #555;
+      cursor: not-allowed;
+      box-shadow: none;
+      color: #aaa;
+    }
+    /* Footer */
+    footer.footer {
+      text-align: center;
+      padding: 18px 10px;
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      background-color: #121212;
+      user-select: none;
+      border-top: 1px solid #222;
+      margin-top: auto;
+    }
+    /* Responsive */
+    @media (max-width: 992px) {
+      main.content {
+        padding: 25px;
+      }
+    }
+    @media (max-width: 768px) {
+      nav.sidebar {
+        position: relative;
+        width: 100%;
+        min-height: auto;
+        flex-direction: row;
+        padding: 12px 15px;
+        gap: 10px;
+        overflow-x: auto;
+      }
+      nav.sidebar h2 {
+        margin-right: 30px;
+        white-space: nowrap;
+      }
+      nav.sidebar a {
+        flex-shrink: 0;
+        padding: 10px 20px;
+        font-size: 0.9rem;
+      }
+      nav.sidebar a svg {
+        width: 18px;
+        height: 18px;
+      }
+      main.content {
+        margin-left: 0;
+        padding: 20px 15px;
+        width: 100%;
+      }
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+      tbody tr {
+        margin-bottom: 20px;
+        background: #222;
+        border-radius: 12px;
+        padding: 15px;
+      }
+      tbody td {
+        padding-left: 50%;
+        position: relative;
+        text-align: right;
+        font-size: 0.9rem;
+      }
+      tbody td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 15px;
+        width: 45%;
+        padding-left: 15px;
+        font-weight: 700;
+        text-align: left;
+        color: var(--color-primary-light);
+        white-space: nowrap;
+      }
+      .btn-action {
+        width: 100%;
+        margin-top: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <nav class="sidebar" aria-label="Menú de navegación principal">
+    <h2>SEGALU</h2>
+    <a href="dashboard.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12l9-9 9 9v9a3 3 0 0 1-3 3h-4v-6h-4v6H6a3 3 0 0 1-3-3v-9z"/></svg>
+      Inicio
+    </a>
+    <a href="gestion_reservas.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 11h10v2H7zm-3-7h2v2H4zm12 0h2v2h-2zM5 22h14a2 2 0 0 0 2-2v-9H3v9a2 2 0 0 0 2 2z"/></svg>
+      Gestión de Reservas
+    </a>
+    <a href="gestion_pagos.html" class="active">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 7h-2v-2a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v10h12a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2z"/></svg>
+      Gestión de Pagos
+    </a>
+    <a href="subir_comprobante.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 20h14v-2H5v2zm7-18l-5 5h3v6h4v-6h3l-5-5z"/></svg>
+      Subir Comprobante
+    </a>
+    <a href="calendario.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v13a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V6a2 2 0 0 0-2-2z"/></svg>
+      Calendario
+    </a>
+    <a href="perfil.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-3 0-9 1.5-9 4.5V21h18v-2.5c0-3-6-4.5-9-4.5z"/></svg>
+      Perfil
+    </a>
+    <a href="loginyregistro.html" class="logout">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M16 13v-2H7V8l-5 4 5 4v-3zM20 3h-8v2h8v14h-8v2h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+      Cerrar sesión
+    </a>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="content" role="main" aria-labelledby="main-title">
+    <div class="content-wrapper">
+      <h1 id="main-title">Gestión de Pagos</h1>
+      <p>Consulta y administra los pagos de tus clientes para eventos.</p>
+
+      <section class="filters" aria-label="Filtros de pagos">
+        <button class="filter-btn active" data-filter="all" aria-pressed="true">Todos</button>
+        <button class="filter-btn" data-filter="pending" aria-pressed="false">Pendientes</button>
+        <button class="filter-btn" data-filter="completed" aria-pressed="false">Completados</button>
+        <button class="filter-btn" data-filter="failed" aria-pressed="false">Fallidos</button>
+      </section>
+
+      <section class="payments-list" aria-label="Listado de pagos">
+        <table role="table" aria-describedby="table-desc">
+          <caption id="table-desc" class="sr-only">Tabla con detalles de pagos: ID, Cliente, Evento, Monto, Estado, Fecha y acción</caption>
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Cliente</th>
+              <th scope="col">Evento</th>
+              <th scope="col">Monto (S/.)</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Fecha</th>
+              <th scope="col">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="payments-tbody">
+            <!-- Filas generadas con JS -->
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer" role="contentinfo">
+    © 2025 SEGALU - Sistema Inteligente de Gestión de Eventos
+  </footer>
+
+  <script>
+    // Datos de ejemplo para pagos
+    const paymentsData = [
+      {id: 'P001', cliente: 'Aligeri Coronado', evento: 'Quinceañera', monto: 450, estado: 'pending', fecha: '2025-05-20'},
+      {id: 'P002', cliente: 'María López', evento: 'Boda', monto: 1200, estado: 'completed', fecha: '2025-04-10'},
+      {id: 'P003', cliente: 'Juan Pérez', evento: 'Graduación', monto: 600, estado: 'failed', fecha: '2025-04-15'},
+      {id: 'P004', cliente: 'Lucía Torres', evento: 'Boda', monto: 1500, estado: 'pending', fecha: '2025-06-05'},
+      {id: 'P005', cliente: 'Carlos Díaz', evento: 'Quinceañera', monto: 500, estado: 'completed', fecha: '2025-03-30'},
+    ];
+
+    const tbody = document.getElementById('payments-tbody');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+
+    function renderPayments(filter = 'all') {
+      tbody.innerHTML = '';
+      const filtered = filter === 'all' ? paymentsData : paymentsData.filter(p => p.estado === filter);
+      if(filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--color-text-muted);">No hay pagos para mostrar</td></tr>`;
+        return;
+      }
+      filtered.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td data-label="ID">${p.id}</td>
+          <td data-label="Cliente">${p.cliente}</td>
+          <td data-label="Evento">${p.evento}</td>
+          <td data-label="Monto">${p.monto.toFixed(2)}</td>
+          <td data-label="Estado" class="status ${p.estado}">${p.estado.charAt(0).toUpperCase() + p.estado.slice(1)}</td>
+          <td data-label="Fecha">${p.fecha}</td>
+          <td data-label="Acción">
+            ${p.estado === 'pending' ? `<button class="btn-action" aria-label="Marcar pago ${p.id} como completado" onclick="markAsCompleted('${p.id}')">Marcar como pagado</button>` : `<button class="btn-action" aria-label="Ver detalles pago ${p.id}" onclick="alert('Detalles del pago ${p.id}')">Detalles</button>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function markAsCompleted(id) {
+      const payment = paymentsData.find(p => p.id === id);
+      if(payment && payment.estado === 'pending') {
+        payment.estado = 'completed';
+        alert(`Pago ${id} marcado como pagado.`);
+        renderPayments(getActiveFilter());
+      }
+    }
+
+    function getActiveFilter() {
+      const activeBtn = [...filterButtons].find(btn => btn.classList.contains('active'));
+      return activeBtn ? activeBtn.dataset.filter : 'all';
+    }
+
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-pressed', 'false');
+        });
+        btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
+        renderPayments(btn.dataset.filter);
+      });
+    });
+
+    // Render inicial
+    renderPayments();
+  </script>
+
+</body>
+</html>
+<!-- Chatbot UI -->
+<div id="chatbot" class="chatbot">
+  <div class="chat-header">SEGALU Chatbot 🤖</div>
+  <div class="chat-body" id="chat-body"></div>
+  <div class="chat-input-area">
+    <input type="text" id="chat-input" placeholder="Escribe tu pregunta..." autocomplete="off" />
+    <button id="chat-send-btn">Enviar</button>
+  </div>
+</div>
+
+<style>
+  /* Chatbot estilo negro-naranja elegante */
+  .chatbot {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 320px;
+    max-height: 500px;
+    background: #1a1a1a;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(255, 140, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #ffa500;
+    z-index: 9999;
+  }
+  .chat-header {
+    background: #ffa500;
+    color: #1a1a1a;
+    padding: 12px;
+    font-weight: bold;
+    font-size: 18px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+  }
+  .chat-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+    background: #121212;
+  }
+  .chat-message {
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+  .chat-message.bot {
+    color: #ffb84d;
+  }
+  .chat-message.user {
+    color: #ffa500;
+    text-align: right;
+  }
+  .chat-input-area {
+    display: flex;
+    border-top: 1px solid #ffa500;
+  }
+  #chat-input {
+    flex-grow: 1;
+    background: #1a1a1a;
+    border: none;
+    color: #ffa500;
+    padding: 10px;
+    font-size: 16px;
+    border-bottom-left-radius: 12px;
+  }
+  #chat-input:focus {
+    outline: none;
+  }
+  #chat-send-btn {
+    background: #ffa500;
+    border: none;
+    color: #1a1a1a;
+    padding: 10px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-bottom-right-radius: 12px;
+  }
+  #chat-send-btn:hover {
+    background: #cc8400;
+  }
+  .typing-indicator {
+    font-style: italic;
+    color: #ffb84d;
+    margin-bottom: 10px;
+  }
+  .btn-suggestion {
+    background: #333;
+    border: 1px solid #ffa500;
+    color: #ffa500;
+    padding: 6px 12px;
+    margin: 3px 3px 0 0;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .btn-suggestion:hover {
+    background: #ffa500;
+    color: #1a1a1a;
+  }
+</style>
+
+<script>
+  (function() {
+    const chatBody = document.getElementById('chat-body');
+    const chatInput = document.getElementById('chat-input');
+    const chatSendBtn = document.getElementById('chat-send-btn');
+
+    // Contexto para seguimiento
+    let context = { lastTopic: null };
+
+    // Preguntas frecuentes con respuestas y palabras clave
+    const faqs = [
+      {
+        module: 'Cliente',
+        intents: ['reservar', 'fecha', 'disponible', 'reserva', 'agenda', 'cómo reservar', 'quiero reservar'],
+        response: 'Para reservar una fecha, selecciona el módulo Cliente y sigue los pasos para elegir local, paquete y horario. ¿Quieres que te ayude con eso?',
+        buttons: ['Quiero reservar', 'Ver paquetes', 'Otra pregunta']
+      },
+      {
+        module: 'Cliente',
+        intents: ['pago', 'pagar', 'comprobante', 'seña', 'depositar', 'yape', 'plin'],
+        response: `Puedes hacer el pago de la seña subiendo el comprobante de Yape o Plin en el módulo Cliente > Pago. Nuestro número es <b>992 579 584</b>. ¿Quieres saber más?`,
+        buttons: ['Ver métodos de pago', 'Otra pregunta']
+      },
+      {
+        module: 'Asesor',
+        intents: ['gestión', 'reservas', 'cambios', 'cancelaciones', 'documentos', 'licencias'],
+        response: 'Como asesor, puedes gestionar reservas, hacer cambios o cancelaciones, y generar documentación municipal simulada. ¿Quieres ver cómo funciona?',
+        buttons: ['Mostrar gestión', 'Otra pregunta']
+      },
+      {
+        module: 'Administrador',
+        intents: ['usuarios', 'locales', 'paquetes', 'reportes', 'configuración', 'analíticos'],
+        response: 'En el módulo Administrador puedes gestionar usuarios, locales, paquetes, reportes analíticos y configuración. ¿Quieres un demo?',
+        buttons: ['Mostrar demo', 'Otra pregunta']
+      },
+      {
+        module: 'General',
+        intents: ['hola', 'buenos días', 'buenas tardes', 'saludo'],
+        response: '¡Hola! Soy el asistente virtual de SEGALU. ¿En qué puedo ayudarte hoy?',
+        buttons: ['Reservas', 'Pagos', 'Gestión', 'Contacto']
+      }
+    ];
+
+    // Función para mostrar mensajes en el chat
+    function addMessage(text, sender = 'bot') {
+      const msg = document.createElement('div');
+      msg.classList.add('chat-message', sender);
+      msg.innerHTML = text;
+      chatBody.appendChild(msg);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Mostrar typing indicator
+    function showTypingIndicator() {
+      const typing = document.createElement('div');
+      typing.classList.add('typing-indicator');
+      typing.textContent = 'El asistente está escribiendo...';
+      chatBody.appendChild(typing);
+      chatBody.scrollTop = chatBody.scrollHeight;
+      return typing;
+    }
+
+    // Normalize input for better matching
+    function normalizeText(text) {
+      return text.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quita tildes
+        .replace(/[^\w\s]/gi, '') // quita signos de puntuación
+        .trim();
+    }
+
+    // Match input text with intents
+    function findBestMatch(input) {
+      input = normalizeText(input);
+      for (let faq of faqs) {
+        for (let intent of faq.intents) {
+          if (input.includes(normalizeText(intent))) {
+            return faq;
+          }
+        }
+      }
+      return null;
+    }
+
+    // Render buttons debajo de la respuesta
+    function renderButtons(buttons) {
+      const container = document.createElement('div');
+      container.style.marginTop = '8px';
+      buttons.forEach(text => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-suggestion';
+        btn.textContent = text;
+        btn.onclick = () => {
+          addUserMessage(text);
+          processInput(text);
+        };
+        container.appendChild(btn);
+      });
+      chatBody.appendChild(container);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Add user message to chat
+    function addUserMessage(text) {
+      addMessage(text, 'user');
+    }
+
+    // Process input and generate response
+    function processInput(input) {
+      const typing = showTypingIndicator();
+
+      setTimeout(() => {
+        chatBody.removeChild(typing);
+
+        // Buscar la mejor respuesta
+        const faq = findBestMatch(input);
+
+        if (faq) {
+          context.lastTopic = faq.module;
+          addMessage(faq.response);
+          if (faq.buttons) {
+            renderButtons(faq.buttons);
+          }
+        } else if (/gracias|muchas gracias|ok|vale|perfecto/.test(normalizeText(input))) {
+          addMessage('¡De nada! Si tienes más preguntas, aquí estaré.');
+        } else if (/adiós|chao|nos vemos|hasta luego/.test(normalizeText(input))) {
+          addMessage('¡Hasta luego! Que tengas un excelente día 😊');
+        } else {
+          addMessage('Lo siento, no entendí esa pregunta. ¿Quieres ver algunas opciones?', ['btn-suggestion', 'Ver opciones']);
+          renderButtons(['Reservas', 'Pagos', 'Gestión', 'Contacto']);
+        }
+      }, 1000);
+    }
+
+    // Eventos UI
+    chatSendBtn.addEventListener('click', () => {
+      const input = chatInput.value.trim();
+      if (input) {
+        addUserMessage(input);
+        chatInput.value = '';
+        processInput(input);
+      }
+    });
+
+    chatInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        chatSendBtn.click();
+      }
+    });
+
+    // Mensaje inicial
+    addMessage('Hola, soy tu asistente virtual de SEGALU. ¿En qué puedo ayudarte? 😊');
+
+  })();
+</script>

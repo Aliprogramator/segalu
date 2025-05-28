@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SEGALU - Gestión de Reservas</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background: #121212;
+      color: #f5f5f5;
+      display: flex;
+      min-height: 100vh;
+    }
+    nav.sidebar {
+      background: #1f1f1f;
+      width: 260px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    nav.sidebar h2 {
+      color: #ff6600;
+      font-weight: 700;
+      font-size: 1.6rem;
+    }
+    nav.sidebar a {
+      color: #ccc;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 10px 15px;
+      border-radius: 5px;
+      transition: background 0.3s;
+      display: block;
+    }
+    nav.sidebar a:hover, nav.sidebar a.active {
+      background: #ff6600;
+      color: #121212;
+    }
+    nav.sidebar a.logout {
+      margin-top: auto;
+      background: #b33600;
+      color: white;
+      font-weight: 700;
+      text-align: center;
+    }
+    nav.sidebar a.logout:hover {
+      background: #ff3300;
+    }
+
+    main.content {
+      margin-left: 260px;
+      padding: 40px;
+      flex: 1;
+      background: #181818;
+    }
+
+    h1 {
+      color: #ff6600;
+      margin-bottom: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #292929;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 15px;
+      text-align: left;
+    }
+
+    th {
+      background: #ff6600;
+      color: #121212;
+    }
+
+    tr:nth-child(even) {
+      background-color: #242424;
+    }
+
+    tr:hover {
+      background-color: #333;
+    }
+
+    .acciones button {
+      background: #ff6600;
+      border: none;
+      padding: 8px 12px;
+      margin-right: 8px;
+      color: #121212;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    .acciones button:hover {
+      background: #e65c00;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <h2>SEGALU</h2>
+    <a href="dashboard.html">Inicio</a>
+    <a href="gestionar_reservas.html" class="active">Gestión de Reservas</a>
+    <a href="gestion_pagos.html">Gestión de Pagos</a>
+    <a href="subir_pago.html">Subir Comprobante</a>
+    <a href="calendario.html">Calendario</a>
+    <a href="#">Perfil</a>
+    <a href="#" class="logout">Cerrar sesión</a>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="content">
+    <h1>Gestión de Reservas</h1>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Tipo de Evento</th>
+          <th>Fecha</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>María Pérez</td>
+          <td>Boda</td>
+          <td>10/07/2025</td>
+          <td>Confirmado</td>
+          <td class="acciones">
+            <button onclick="alert('Editar reserva')">Editar</button>
+            <button onclick="alert('Eliminar reserva')">Eliminar</button>
+          </td>
+        </tr>
+        <tr>
+          <td>Jorge Lazo</td>
+          <td>Graduación</td>
+          <td>20/07/2025</td>
+          <td>Pendiente</td>
+          <td class="acciones">
+            <button onclick="alert('Editar reserva')">Editar</button>
+            <button onclick="alert('Eliminar reserva')">Eliminar</button>
+          </td>
+        </tr>
+        <tr>
+          <td>Ana Ruiz</td>
+          <td>Quinceañera</td>
+          <td>15/06/2025</td>
+          <td>Confirmado</td>
+          <td class="acciones">
+            <button onclick="alert('Editar reserva')">Editar</button>
+            <button onclick="alert('Eliminar reserva')">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </main>
+
+</body>
+</html>
+<!-- Chatbot UI -->
+<div id="chatbot" class="chatbot">
+  <div class="chat-header">SEGALU Chatbot 🤖</div>
+  <div class="chat-body" id="chat-body"></div>
+  <div class="chat-input-area">
+    <input type="text" id="chat-input" placeholder="Escribe tu pregunta..." autocomplete="off" />
+    <button id="chat-send-btn">Enviar</button>
+  </div>
+</div>
+
+<style>
+  /* Chatbot estilo negro-naranja elegante */
+  .chatbot {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 320px;
+    max-height: 500px;
+    background: #1a1a1a;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(255, 140, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #ffa500;
+    z-index: 9999;
+  }
+  .chat-header {
+    background: #ffa500;
+    color: #1a1a1a;
+    padding: 12px;
+    font-weight: bold;
+    font-size: 18px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+  }
+  .chat-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+    background: #121212;
+  }
+  .chat-message {
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+  .chat-message.bot {
+    color: #ffb84d;
+  }
+  .chat-message.user {
+    color: #ffa500;
+    text-align: right;
+  }
+  .chat-input-area {
+    display: flex;
+    border-top: 1px solid #ffa500;
+  }
+  #chat-input {
+    flex-grow: 1;
+    background: #1a1a1a;
+    border: none;
+    color: #ffa500;
+    padding: 10px;
+    font-size: 16px;
+    border-bottom-left-radius: 12px;
+  }
+  #chat-input:focus {
+    outline: none;
+  }
+  #chat-send-btn {
+    background: #ffa500;
+    border: none;
+    color: #1a1a1a;
+    padding: 10px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-bottom-right-radius: 12px;
+  }
+  #chat-send-btn:hover {
+    background: #cc8400;
+  }
+  .typing-indicator {
+    font-style: italic;
+    color: #ffb84d;
+    margin-bottom: 10px;
+  }
+  .btn-suggestion {
+    background: #333;
+    border: 1px solid #ffa500;
+    color: #ffa500;
+    padding: 6px 12px;
+    margin: 3px 3px 0 0;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .btn-suggestion:hover {
+    background: #ffa500;
+    color: #1a1a1a;
+  }
+</style>
+
+<script>
+  (function() {
+    const chatBody = document.getElementById('chat-body');
+    const chatInput = document.getElementById('chat-input');
+    const chatSendBtn = document.getElementById('chat-send-btn');
+
+    // Contexto para seguimiento
+    let context = { lastTopic: null };
+
+    // Preguntas frecuentes con respuestas y palabras clave
+    const faqs = [
+      {
+        module: 'Cliente',
+        intents: ['reservar', 'fecha', 'disponible', 'reserva', 'agenda', 'cómo reservar', 'quiero reservar'],
+        response: 'Para reservar una fecha, selecciona el módulo Cliente y sigue los pasos para elegir local, paquete y horario. ¿Quieres que te ayude con eso?',
+        buttons: ['Quiero reservar', 'Ver paquetes', 'Otra pregunta']
+      },
+      {
+        module: 'Cliente',
+        intents: ['pago', 'pagar', 'comprobante', 'seña', 'depositar', 'yape', 'plin'],
+        response: `Puedes hacer el pago de la seña subiendo el comprobante de Yape o Plin en el módulo Cliente > Pago. Nuestro número es <b>992 579 584</b>. ¿Quieres saber más?`,
+        buttons: ['Ver métodos de pago', 'Otra pregunta']
+      },
+      {
+        module: 'Asesor',
+        intents: ['gestión', 'reservas', 'cambios', 'cancelaciones', 'documentos', 'licencias'],
+        response: 'Como asesor, puedes gestionar reservas, hacer cambios o cancelaciones, y generar documentación municipal simulada. ¿Quieres ver cómo funciona?',
+        buttons: ['Mostrar gestión', 'Otra pregunta']
+      },
+      {
+        module: 'Administrador',
+        intents: ['usuarios', 'locales', 'paquetes', 'reportes', 'configuración', 'analíticos'],
+        response: 'En el módulo Administrador puedes gestionar usuarios, locales, paquetes, reportes analíticos y configuración. ¿Quieres un demo?',
+        buttons: ['Mostrar demo', 'Otra pregunta']
+      },
+      {
+        module: 'General',
+        intents: ['hola', 'buenos días', 'buenas tardes', 'saludo'],
+        response: '¡Hola! Soy el asistente virtual de SEGALU. ¿En qué puedo ayudarte hoy?',
+        buttons: ['Reservas', 'Pagos', 'Gestión', 'Contacto']
+      }
+    ];
+
+    // Función para mostrar mensajes en el chat
+    function addMessage(text, sender = 'bot') {
+      const msg = document.createElement('div');
+      msg.classList.add('chat-message', sender);
+      msg.innerHTML = text;
+      chatBody.appendChild(msg);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Mostrar typing indicator
+    function showTypingIndicator() {
+      const typing = document.createElement('div');
+      typing.classList.add('typing-indicator');
+      typing.textContent = 'El asistente está escribiendo...';
+      chatBody.appendChild(typing);
+      chatBody.scrollTop = chatBody.scrollHeight;
+      return typing;
+    }
+
+    // Normalize input for better matching
+    function normalizeText(text) {
+      return text.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quita tildes
+        .replace(/[^\w\s]/gi, '') // quita signos de puntuación
+        .trim();
+    }
+
+    // Match input text with intents
+    function findBestMatch(input) {
+      input = normalizeText(input);
+      for (let faq of faqs) {
+        for (let intent of faq.intents) {
+          if (input.includes(normalizeText(intent))) {
+            return faq;
+          }
+        }
+      }
+      return null;
+    }
+
+    // Render buttons debajo de la respuesta
+    function renderButtons(buttons) {
+      const container = document.createElement('div');
+      container.style.marginTop = '8px';
+      buttons.forEach(text => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-suggestion';
+        btn.textContent = text;
+        btn.onclick = () => {
+          addUserMessage(text);
+          processInput(text);
+        };
+        container.appendChild(btn);
+      });
+      chatBody.appendChild(container);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Add user message to chat
+    function addUserMessage(text) {
+      addMessage(text, 'user');
+    }
+
+    // Process input and generate response
+    function processInput(input) {
+      const typing = showTypingIndicator();
+
+      setTimeout(() => {
+        chatBody.removeChild(typing);
+
+        // Buscar la mejor respuesta
+        const faq = findBestMatch(input);
+
+        if (faq) {
+          context.lastTopic = faq.module;
+          addMessage(faq.response);
+          if (faq.buttons) {
+            renderButtons(faq.buttons);
+          }
+        } else if (/gracias|muchas gracias|ok|vale|perfecto/.test(normalizeText(input))) {
+          addMessage('¡De nada! Si tienes más preguntas, aquí estaré.');
+        } else if (/adiós|chao|nos vemos|hasta luego/.test(normalizeText(input))) {
+          addMessage('¡Hasta luego! Que tengas un excelente día 😊');
+        } else {
+          addMessage('Lo siento, no entendí esa pregunta. ¿Quieres ver algunas opciones?', ['btn-suggestion', 'Ver opciones']);
+          renderButtons(['Reservas', 'Pagos', 'Gestión', 'Contacto']);
+        }
+      }, 1000);
+    }
+
+    // Eventos UI
+    chatSendBtn.addEventListener('click', () => {
+      const input = chatInput.value.trim();
+      if (input) {
+        addUserMessage(input);
+        chatInput.value = '';
+        processInput(input);
+      }
+    });
+
+    chatInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        chatSendBtn.click();
+      }
+    });
+
+    // Mensaje inicial
+    addMessage('Hola, soy tu asistente virtual de SEGALU. ¿En qué puedo ayudarte? 😊');
+
+  })();
+</script>

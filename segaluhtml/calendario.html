@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SEGALU - Calendario</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212;
+    color: #f5f5f5;
+    display: flex;
+    min-height: 100vh;
+  }
+  nav.sidebar {
+    background: #1f1f1f;
+    width: 260px;
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: fixed;
+  }
+  nav.sidebar h2 {
+    color: #ff6600;
+    font-weight: 700;
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+    user-select: none;
+  }
+  nav.sidebar a {
+    color: #ccc;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background 0.3s, color 0.3s;
+    display: block;
+    user-select: none;
+  }
+  nav.sidebar a:hover, nav.sidebar a.active {
+    background: #ff6600;
+    color: #121212;
+  }
+  nav.sidebar a.logout {
+    margin-top: auto;
+    background: #b33600;
+    color: white;
+    font-weight: 700;
+    text-align: center;
+  }
+  nav.sidebar a.logout:hover {
+    background: #ff3300;
+  }
+  main.content {
+    margin-left: 260px;
+    padding: 30px 40px;
+    flex: 1;
+    background: #181818;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    align-items: center;
+  }
+  main.content h1 {
+    color: #ff6600;
+    margin-bottom: 20px;
+    align-self: flex-start;
+  }
+  .calendar-container {
+    background: #292929;
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px #ff6600aa;
+    max-width: 600px;
+    width: 100%;
+  }
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ff6600;
+    font-weight: 700;
+    margin-bottom: 15px;
+  }
+  .calendar-header button {
+    background: #ff6600;
+    border: none;
+    color: #121212;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  .calendar-header button:hover {
+    background: #e65c00;
+  }
+  .days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    color: #bbb;
+    font-weight: 600;
+    margin-bottom: 8px;
+    user-select: none;
+  }
+  .days div {
+    text-align: center;
+  }
+  .dates {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+  }
+  .dates div {
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #3a3a3a;
+    border-radius: 8px;
+    color: #f5f5f5;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  .dates div:hover {
+    background: #ff6600;
+    color: #121212;
+    transform: scale(1.1);
+  }
+  .dates div.selected {
+    background: #ff6600;
+    color: #121212;
+    box-shadow: 0 0 10px #ff6600;
+  }
+  .dates div.disabled {
+    background: #2c2c2c;
+    color: #555;
+    cursor: default;
+  }
+  .btn-agendar {
+    margin-top: 20px;
+    background-color: #ff6600;
+    border: none;
+    color: #121212;
+    font-weight: 700;
+    padding: 12px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 600px;
+    transition: background-color 0.3s ease;
+    user-select: none;
+  }
+  .btn-agendar:disabled {
+    background: #7a3f00;
+    cursor: not-allowed;
+  }
+  .msg {
+    margin-top: 20px;
+    font-weight: 600;
+    color: #ff6600;
+    user-select: text;
+    min-height: 1.5em;
+    text-align: center;
+  }
+  /* Responsive */
+  @media (max-width: 700px) {
+    nav.sidebar {
+      position: relative;
+      width: 100%;
+      min-height: auto;
+      flex-direction: row;
+      padding: 10px 15px;
+      overflow-x: auto;
+    }
+    nav.sidebar h2 {
+      margin-right: 30px;
+      white-space: nowrap;
+    }
+    nav.sidebar a {
+      flex-shrink: 0;
+      padding: 10px 20px;
+    }
+    main.content {
+      margin-left: 0;
+      padding: 20px 15px;
+      align-items: stretch;
+    }
+    main.content h1 {
+      align-self: center;
+      text-align: center;
+    }
+    .calendar-container {
+      max-width: 100%;
+      padding: 15px 20px;
+    }
+    .btn-agendar {
+      max-width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <h2>SEGALU</h2>
+  <a href="dashboard.html">Inicio</a>
+  <a href="gestion_reservas.html">Gestión de Reservas</a>
+  <a href="gestion_pagos.html">Gestión de Pagos</a>
+  <a href="subir_pago.html">Subir Comprobante</a>
+  <a href="calendario.html" class="active">Calendario</a>
+  <a href="perfil.html">Perfil</a>
+  <a href="#" class="logout">Cerrar sesión</a>
+</nav>
+
+<main class="content">
+  <h1>Calendario de Reservas</h1>
+  <div class="calendar-container">
+    <div class="calendar-header">
+      <button id="prevMonth" aria-label="Mes anterior">&#8592;</button>
+      <div id="monthYear"></div>
+      <button id="nextMonth" aria-label="Mes siguiente">&#8594;</button>
+    </div>
+    <div class="days">
+      <div>Lun</div>
+      <div>Mar</div>
+      <div>Mié</div>
+      <div>Jue</div>
+      <div>Vie</div>
+      <div>Sáb</div>
+      <div>Dom</div>
+    </div>
+    <div class="dates" id="datesGrid"></div>
+  </div>
+  <button class="btn-agendar" id="btnAgendar" disabled>Agendar Fecha Seleccionada</button>
+  <div class="msg" id="msg"></div>
+</main>
+
+<script>
+  const monthYearLabel = document.getElementById('monthYear');
+  const datesGrid = document.getElementById('datesGrid');
+  const prevMonthBtn = document.getElementById('prevMonth');
+  const nextMonthBtn = document.getElementById('nextMonth');
+  const btnAgendar = document.getElementById('btnAgendar');
+  const msg = document.getElementById('msg');
+
+  let selectedDate = null;
+
+  let currentDate = new Date();
+  currentDate.setDate(1); // empezar en el primer día del mes
+
+  function isDateDisabled(date) {
+    // Ejemplo: deshabilitar fechas pasadas
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    return date < today;
+  }
+
+  function renderCalendar() {
+    datesGrid.innerHTML = '';
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    // Mostrar mes y año en formato "Mayo 2025"
+    const options = { year: 'numeric', month: 'long' };
+    monthYearLabel.textContent = currentDate.toLocaleDateString('es-ES', options).toUpperCase();
+
+    // Día de la semana del primer día del mes (lunes=1, domingo=7)
+    let firstDay = currentDate.getDay();
+    // Ajustamos porque JS domingo=0, lunes=1 ... queremos lunes=0 para grid
+    firstDay = firstDay === 0 ? 6 : firstDay -1;
+
+    // Cantidad de días en el mes actual
+    const daysInMonth = new Date(year, month +1, 0).getDate();
+
+    // Rellenar huecos vacíos para empezar lunes
+    for(let i=0; i<firstDay; i++) {
+      const emptyCell = document.createElement('div');
+      emptyCell.classList.add('disabled');
+      datesGrid.appendChild(emptyCell);
+    }
+
+    for(let day=1; day<=daysInMonth; day++) {
+      const dateCell = document.createElement('div');
+      dateCell.textContent = day;
+      const cellDate = new Date(year, month, day);
+
+      if(isDateDisabled(cellDate)) {
+        dateCell.classList.add('disabled');
+      } else {
+        dateCell.addEventListener('click', () => {
+          // Deseleccionar anterior
+          const prevSelected = datesGrid.querySelector('.selected');
+          if(prevSelected) prevSelected.classList.remove('selected');
+
+          dateCell.classList.add('selected');
+          selectedDate = cellDate;
+          btnAgendar.disabled = false;
+          msg.textContent = '';
+        });
+      }
+      datesGrid.appendChild(dateCell);
+    }
+    // Si el mes cambió, resetear selección y botón
+    selectedDate = null;
+    btnAgendar.disabled = true;
+  }
+
+  prevMonthBtn.addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    renderCalendar();
+  });
+  nextMonthBtn.addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    renderCalendar();
+  });
+
+  btnAgendar.addEventListener('click', () => {
+    if(selectedDate) {
+      const formatted = selectedDate.toLocaleDateString('es-ES', {day:'2-digit', month:'2-digit', year:'numeric'});
+      msg.textContent = `Fecha agendada: ${formatted}`;
+      btnAgendar.disabled = true;
+      const selectedCell = datesGrid.querySelector('.selected');
+      if(selectedCell) selectedCell.classList.remove('selected');
+      selectedDate = null;
+      // Aquí podrías enviar esta fecha a backend o guardar localmente
+    }
+  });
+
+  renderCalendar();
+</script>
+
+</body>
+</html>
+<!-- Chatbot UI -->
+<div id="chatbot" class="chatbot">
+  <div class="chat-header">SEGALU Chatbot 🤖</div>
+  <div class="chat-body" id="chat-body"></div>
+  <div class="chat-input-area">
+    <input type="text" id="chat-input" placeholder="Escribe tu pregunta..." autocomplete="off" />
+    <button id="chat-send-btn">Enviar</button>
+  </div>
+</div>
+
+<style>
+  /* Chatbot estilo negro-naranja elegante */
+  .chatbot {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 320px;
+    max-height: 500px;
+    background: #1a1a1a;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(255, 140, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #ffa500;
+    z-index: 9999;
+  }
+  .chat-header {
+    background: #ffa500;
+    color: #1a1a1a;
+    padding: 12px;
+    font-weight: bold;
+    font-size: 18px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+  }
+  .chat-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+    background: #121212;
+  }
+  .chat-message {
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+  .chat-message.bot {
+    color: #ffb84d;
+  }
+  .chat-message.user {
+    color: #ffa500;
+    text-align: right;
+  }
+  .chat-input-area {
+    display: flex;
+    border-top: 1px solid #ffa500;
+  }
+  #chat-input {
+    flex-grow: 1;
+    background: #1a1a1a;
+    border: none;
+    color: #ffa500;
+    padding: 10px;
+    font-size: 16px;
+    border-bottom-left-radius: 12px;
+  }
+  #chat-input:focus {
+    outline: none;
+  }
+  #chat-send-btn {
+    background: #ffa500;
+    border: none;
+    color: #1a1a1a;
+    padding: 10px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-bottom-right-radius: 12px;
+  }
+  #chat-send-btn:hover {
+    background: #cc8400;
+  }
+  .typing-indicator {
+    font-style: italic;
+    color: #ffb84d;
+    margin-bottom: 10px;
+  }
+  .btn-suggestion {
+    background: #333;
+    border: 1px solid #ffa500;
+    color: #ffa500;
+    padding: 6px 12px;
+    margin: 3px 3px 0 0;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .btn-suggestion:hover {
+    background: #ffa500;
+    color: #1a1a1a;
+  }
+</style>
+
+<script>
+  (function() {
+    const chatBody = document.getElementById('chat-body');
+    const chatInput = document.getElementById('chat-input');
+    const chatSendBtn = document.getElementById('chat-send-btn');
+
+    // Contexto para seguimiento
+    let context = { lastTopic: null };
+
+    // Preguntas frecuentes con respuestas y palabras clave
+    const faqs = [
+      {
+        module: 'Cliente',
+        intents: ['reservar', 'fecha', 'disponible', 'reserva', 'agenda', 'cómo reservar', 'quiero reservar'],
+        response: 'Para reservar una fecha, selecciona el módulo Cliente y sigue los pasos para elegir local, paquete y horario. ¿Quieres que te ayude con eso?',
+        buttons: ['Quiero reservar', 'Ver paquetes', 'Otra pregunta']
+      },
+      {
+        module: 'Cliente',
+        intents: ['pago', 'pagar', 'comprobante', 'seña', 'depositar', 'yape', 'plin'],
+        response: `Puedes hacer el pago de la seña subiendo el comprobante de Yape o Plin en el módulo Cliente > Pago. Nuestro número es <b>992 579 584</b>. ¿Quieres saber más?`,
+        buttons: ['Ver métodos de pago', 'Otra pregunta']
+      },
+      {
+        module: 'Asesor',
+        intents: ['gestión', 'reservas', 'cambios', 'cancelaciones', 'documentos', 'licencias'],
+        response: 'Como asesor, puedes gestionar reservas, hacer cambios o cancelaciones, y generar documentación municipal simulada. ¿Quieres ver cómo funciona?',
+        buttons: ['Mostrar gestión', 'Otra pregunta']
+      },
+      {
+        module: 'Administrador',
+        intents: ['usuarios', 'locales', 'paquetes', 'reportes', 'configuración', 'analíticos'],
+        response: 'En el módulo Administrador puedes gestionar usuarios, locales, paquetes, reportes analíticos y configuración. ¿Quieres un demo?',
+        buttons: ['Mostrar demo', 'Otra pregunta']
+      },
+      {
+        module: 'General',
+        intents: ['hola', 'buenos días', 'buenas tardes', 'saludo'],
+        response: '¡Hola! Soy el asistente virtual de SEGALU. ¿En qué puedo ayudarte hoy?',
+        buttons: ['Reservas', 'Pagos', 'Gestión', 'Contacto']
+      }
+    ];
+
+    // Función para mostrar mensajes en el chat
+    function addMessage(text, sender = 'bot') {
+      const msg = document.createElement('div');
+      msg.classList.add('chat-message', sender);
+      msg.innerHTML = text;
+      chatBody.appendChild(msg);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Mostrar typing indicator
+    function showTypingIndicator() {
+      const typing = document.createElement('div');
+      typing.classList.add('typing-indicator');
+      typing.textContent = 'El asistente está escribiendo...';
+      chatBody.appendChild(typing);
+      chatBody.scrollTop = chatBody.scrollHeight;
+      return typing;
+    }
+
+    // Normalize input for better matching
+    function normalizeText(text) {
+      return text.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quita tildes
+        .replace(/[^\w\s]/gi, '') // quita signos de puntuación
+        .trim();
+    }
+
+    // Match input text with intents
+    function findBestMatch(input) {
+      input = normalizeText(input);
+      for (let faq of faqs) {
+        for (let intent of faq.intents) {
+          if (input.includes(normalizeText(intent))) {
+            return faq;
+          }
+        }
+      }
+      return null;
+    }
+
+    // Render buttons debajo de la respuesta
+    function renderButtons(buttons) {
+      const container = document.createElement('div');
+      container.style.marginTop = '8px';
+      buttons.forEach(text => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-suggestion';
+        btn.textContent = text;
+        btn.onclick = () => {
+          addUserMessage(text);
+          processInput(text);
+        };
+        container.appendChild(btn);
+      });
+      chatBody.appendChild(container);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Add user message to chat
+    function addUserMessage(text) {
+      addMessage(text, 'user');
+    }
+
+    // Process input and generate response
+    function processInput(input) {
+      const typing = showTypingIndicator();
+
+      setTimeout(() => {
+        chatBody.removeChild(typing);
+
+        // Buscar la mejor respuesta
+        const faq = findBestMatch(input);
+
+        if (faq) {
+          context.lastTopic = faq.module;
+          addMessage(faq.response);
+          if (faq.buttons) {
+            renderButtons(faq.buttons);
+          }
+        } else if (/gracias|muchas gracias|ok|vale|perfecto/.test(normalizeText(input))) {
+          addMessage('¡De nada! Si tienes más preguntas, aquí estaré.');
+        } else if (/adiós|chao|nos vemos|hasta luego/.test(normalizeText(input))) {
+          addMessage('¡Hasta luego! Que tengas un excelente día 😊');
+        } else {
+          addMessage('Lo siento, no entendí esa pregunta. ¿Quieres ver algunas opciones?', ['btn-suggestion', 'Ver opciones']);
+          renderButtons(['Reservas', 'Pagos', 'Gestión', 'Contacto']);
+        }
+      }, 1000);
+    }
+
+    // Eventos UI
+    chatSendBtn.addEventListener('click', () => {
+      const input = chatInput.value.trim();
+      if (input) {
+        addUserMessage(input);
+        chatInput.value = '';
+        processInput(input);
+      }
+    });
+
+    chatInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        chatSendBtn.click();
+      }
+    });
+
+    // Mensaje inicial
+    addMessage('Hola, soy tu asistente virtual de SEGALU. ¿En qué puedo ayudarte? 😊');
+
+  })();
+</script>
